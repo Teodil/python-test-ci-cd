@@ -12,13 +12,17 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v6
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
       - name: Проверка страницы
         run: python -m unittest discover -s tests -v
+
       - name: Подготовка артефакта сайта
         if: >-
           github.event_name == 'push' &&
@@ -26,24 +30,26 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           path: site
-    deploy:
-      needs: check
-      if: >-
-        github.event_name == 'push' &&
-        github.ref == 'refs/heads/main'
-      runs-on: ubuntu-latest
-      permissions:
-        pages: write
-        id-token: write
-      environment:
-        name: github-pages
 
-  concurrency:
-    group: github-pages
-    cancel-in-progress: false
-  steps:
-    - name: Публикация сайта
-      id: deployment
-      uses: actions/deploy-pages@v4
+  deploy:
+    needs: check
+    if: >-
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
 
+    permissions:
+      pages: write
+      id-token: write
 
+    environment:
+      name: github-pages
+
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+
+    steps:
+      - name: Публикация сайта
+        id: deployment
+        uses: actions/deploy-pages@v4
